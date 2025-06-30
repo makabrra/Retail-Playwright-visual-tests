@@ -1,5 +1,5 @@
 {
-  "name": "Retail - visual tests",
+  "name": "Retail",
   "version": "1.0.0",
   "description": "Visual Automation Tests written using Playwright and Cucumber to compare MWS and IFA NSI sites for releases",
   "main": "index.js",
