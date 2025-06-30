@@ -5,6 +5,7 @@ import { expect } from 'chai';
 import * as fs from 'fs';
 import * as config from '../config.json';
 import { compareScreenshots } from '../utils/utils';
+import maskConfig from '../mask-config.json';
 
 const { browser } = config;
 const browserType = require('playwright')[browser.name];
@@ -33,7 +34,9 @@ When('the User navigated to the {string} IFA page', async (subPage: string) => {
 });
 
 Then('the {string} page is displayed properly', async function (path: string) {
+    const maskSelectors = maskConfig[path as keyof typeof maskConfig] || [];
     basePage = new BasePage(page);
+    basePage.setMaskSelectors(maskSelectors);
     const scenarioName = currentScenarioName.replace(/[\s\/\\:*?"<>|]+/g, '_');
 
     // Ensure baseline_png directory exists first
@@ -59,7 +62,7 @@ Then('the {string} page is displayed properly', async function (path: string) {
         // Compare screenshots
         const baselineScreenshot = await fs.promises.readFile(baselineScreenshotPath);
         const newScreenshot = await basePage.takeScreenshot(scenarioName, path);
-        const result = await compareScreenshots(baselineScreenshot, newScreenshot, config.png_comparision_threshold, config.png_comparision_maxdiffpixels, scenarioName);
+        const result = await compareScreenshots(baselineScreenshot, newScreenshot, config.png_comparision_threshold, scenarioName);
 
         expect(result, `Screenshots are not identical for scenario: ${scenarioName}`).to.be.true;
 

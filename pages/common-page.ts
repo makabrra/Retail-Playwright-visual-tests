@@ -8,11 +8,16 @@ export default class BasePage {
 
     private readonly LINK_TEXT_SELECTOR_PLACEHOLDER = (linkText: string) => `//a[text()="${linkText}"]`;
     private readonly TEXT_SELECTOR_PLACEHOLDER = (linkText: string) => `//*[contains(text(), '${linkText}')]`;
-
+    private maskSelectors: string[] = [];
+    
     protected readonly page: Page;
 
     constructor(page: Page) {
         this.page = page;
+    }
+
+    setMaskSelectors(selectors: string[]) {
+        this.maskSelectors = selectors;
     }
 
     async openMainPage() {
@@ -43,7 +48,15 @@ export default class BasePage {
     }
 
     async takeScreenshot(scenarioName?: string, path?: string): Promise<Buffer> {
-        return await this.page.screenshot({ path: `screenshots/${path}/${scenarioName}.png`, fullPage: true});
+        const maskLocators: Locator[] = this.maskSelectors.map(selector => 
+        this.page.locator(selector)
+        );
+        
+        return await this.page.screenshot({ 
+            path: `screenshots/${path}/${scenarioName}.png`, 
+            fullPage: true,
+            mask: maskLocators
+        });
     }
 
     async getPageTitle(): Promise<String> {
