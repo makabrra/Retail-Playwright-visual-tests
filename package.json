@@ -4,8 +4,11 @@
   "description": "Visual Automation Tests written using Playwright and Cucumber to compare MWS and IFA NSI sites for releases",
   "main": "index.js",
   "scripts": {
-    "test": "npx cucumber-js -p test_runner --tags @demo",
-    "posttest": "node generate_report.js"
+    "test": "npx cucumber-js -p test_runner --tags @MWS",
+    "posttest": "node generate_report.js",
+    "test:full": "npm test && npm run report",
+    "report": "node generate_report.js",
+    "clean:reports": "rm -rf ./reports"
   },
   "keywords": [],
   "author": "Automation Test Team",
@@ -23,6 +26,7 @@
     "playwright": "1.53.1",
     "pngjs": "7.0.0",
     "ts-node": "10.9.2",
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "multiple-cucumber-html-reporter": "3.9.3"
   }
 }
