@@ -6,6 +6,7 @@ export async function compareScreenshots(
     baselineScreenshot: Buffer,
     newScreenshot: Buffer,
     threshold = 0.1,
+    maxDiffPixels = 100,
     scenarioName = 'unknown_scenario'
 ): Promise<boolean> {
     const baselinePNG = PNG.sync.read(baselineScreenshot);

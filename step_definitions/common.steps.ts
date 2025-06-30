@@ -59,7 +59,7 @@ Then('the {string} page is displayed properly', async function (path: string) {
         // Compare screenshots
         const baselineScreenshot = await fs.promises.readFile(baselineScreenshotPath);
         const newScreenshot = await basePage.takeScreenshot(scenarioName, path);
-        const result = await compareScreenshots(baselineScreenshot, newScreenshot, config.png_comparision_threshold, scenarioName);
+        const result = await compareScreenshots(baselineScreenshot, newScreenshot, config.png_comparision_threshold, config.png_comparision_maxdiffpixels, scenarioName);
 
         expect(result, `Screenshots are not identical for scenario: ${scenarioName}`).to.be.true;
 

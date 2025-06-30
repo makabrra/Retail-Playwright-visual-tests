@@ -1,5 +1,5 @@
 @IFA
-Feature: IFA - Main Page
+Feature: IFA
 
   Scenario Outline: IFA screenshot "<URL>" UI comparison
     Given a customer is browsing NS&I adviser website
