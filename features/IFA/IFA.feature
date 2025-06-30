@@ -1,4 +1,4 @@
-@demo
+@IFA
 Feature: IFA - Main Page
 
   Scenario Outline: IFA screenshot "<URL>" UI comparison

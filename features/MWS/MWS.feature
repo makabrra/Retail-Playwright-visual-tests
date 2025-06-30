@@ -1,4 +1,4 @@
-@demo
+@MWS
 Feature: MWS - Main Page
 
   Scenario Outline: MWS screenshot "<URL>" UI comparison
