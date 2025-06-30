@@ -1,0 +1,14 @@
+{
+  "baseUrl": "https://www.nsandi.com/",
+  "baseUrlMWS": "https://www.nsandi.com/",
+  "baseUrlIFA": "https://www.nsandi-adviser.com/",
+
+  "png_comparision_threshold": 0.01,
+  "cucumber_default_timeout_ms": 10000,
+  "take_screenshots_on_failure": true,
+
+  "browser": {
+    "name": "chromium",
+    "headless": true
+  }
+}
