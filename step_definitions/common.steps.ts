@@ -1,5 +1,6 @@
 import { Given, When, Before, After, setDefaultTimeout, Then, Status } from '@cucumber/cucumber';
 import { Browser, Page } from 'playwright';
+import { expect } from 'chai';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -149,15 +150,33 @@ Then('the {string} page is displayed properly', async function (pageType: string
 
             Logger.error(errorMessage);
 
-            // Attach current screenshot to test report
-            if (config.screenshot.takeScreenshotsOnFailure) {
+            // Attach all relevant screenshots to the test report
+            try {
+                // 1. Attach current screenshot
                 await this.attach(currentScreenshot, 'image/png');
+
+                // 2. Attach baseline screenshot for comparison
+                const baselineBuffer = await fs.readFile(baselineScreenshotPath);
+                await this.attach(baselineBuffer, 'image/png');
+
+                // 3. Attach diff screenshot if it exists
+                if (comparisonResult.diffImagePath) {
+                    const diffBuffer = await fs.readFile(comparisonResult.diffImagePath);
+                    await this.attach(diffBuffer, 'image/png');
+                    Logger.info(`Diff screenshot attached: ${comparisonResult.diffImagePath}`);
+                }
+            } catch (attachError) {
+                Logger.error('Failed to attach screenshots to report', attachError as Error);
             }
 
             throw new Error(errorMessage);
         }
 
         Logger.info(`Screenshot comparison passed for scenario: ${sanitizedScenarioName}`);
+
+        // Even on success, you might want to attach the current screenshot for documentation
+        // Uncomment the following lines if you want to attach screenshots on success too:
+        // await this.attach(currentScreenshot, 'image/png');
 
     } catch (error) {
         Logger.error(`Visual comparison failed for scenario: ${sanitizedScenarioName}`, error as Error);

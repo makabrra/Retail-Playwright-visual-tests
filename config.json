@@ -14,7 +14,7 @@
   },
 
   "screenshot": {
-    "pngComparisonThreshold": 0.1,
+    "pngComparisonThreshold": 0.001,
     "takeScreenshotsOnFailure": true,
     "fullPage": true
   },
