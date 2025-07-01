@@ -89,7 +89,7 @@ Before(async function (scenario) {
 After(async function (scenario) {
     if (config.take_screenshots_on_failure) {
         if (scenario && scenario.result && scenario.result.status === Status.FAILED) {
-            await this.attach(await page.screenshot({
+            this.attach(await page.screenshot({
                 path: `./screenshots/FAILED - ${scenario.pickle.name}.png`, fullPage: true,
             }), 'image/png');
         }

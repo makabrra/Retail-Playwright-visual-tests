@@ -66,6 +66,7 @@ screenshots/
 .env
 
 #reports
+reports/
 reports/*.html
 reports/*.json
 cucumber_report.*
