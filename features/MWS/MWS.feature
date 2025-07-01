@@ -113,7 +113,7 @@ Feature: MWS
       | /help/manage-your-savings/tax-on-savings                                                                      |
       | /help/manage-your-savings/top-up-savings                                                                      |
       | /help/ways-to-pay                                                                                             |
-      # | /help/ways-to-pay/pay-bank-account                                                                            |
+#      | /help/ways-to-pay/pay-bank-account                                                                            |
       | /historical-interest-rates                                                                                    |
       | /ilsc-calculator                                                                                              |
       | /interest-rates                                                                                               |
