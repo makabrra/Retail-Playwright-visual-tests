@@ -1,12 +1,45 @@
+export interface BrowserConfig {
+  name: 'chromium' | 'firefox' | 'webkit';
+  headless: boolean;
+  viewport?: {
+    width: number;
+    height: number;
+  };
+  slowMo?: number;
+}
+
+export interface ScreenshotConfig {
+  pngComparisonThreshold: number;
+  takeScreenshotsOnFailure: boolean;
+  fullPage: boolean;
+  quality?: number;
+}
+
+export interface PathConfig {
+  baselineDir: string;
+  screenshotsDir: string;
+  reportsDir: string;
+  diffDir: string;
+}
+
 export interface Config {
   baseUrl: string;
   baseUrlIFA: string;
   baseUrlMWS: string;
-  png_comparision_threshold: number;
-  cucumber_default_timeout_ms: number;
-  take_screenshots_on_failure: boolean;
-  browser: {
-    name: string;
-    headless: boolean;
-  };
+  cucumberDefaultTimeoutMs: number;
+  browser: BrowserConfig;
+  screenshot: ScreenshotConfig;
+  paths: PathConfig;
+}
+
+export interface MaskConfig {
+  [key: string]: string[];
+}
+
+export interface ScreenshotComparisonResult {
+  isMatch: boolean;
+  diffPixels: number;
+  totalPixels: number;
+  diffPercentage: number;
+  diffImagePath?: string;
 }
