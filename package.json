@@ -1,12 +1,16 @@
 {
-  "name": "Retail",
+  "name": "nsandi-visual-testing-suite",
   "version": "1.0.0",
   "description": "Visual Automation Tests written using Playwright and Cucumber to compare MWS and IFA NSI sites for releases",
   "main": "index.js",
   "scripts": {
+    "test:mws": "npx cucumber-js -p test_runner --tags @MWS",
+    "test:ifa": "npx cucumber-js -p test_runner --tags @IFA",
+    "test": "npx cucumber-js -p test_runner --tags @All",
     "clean:reports": "rm -rf ./reports",
-    "test": "npx cucumber-js -p test_runner --tags @MWS",
     "posttest": "node generate_report.js",
+    "posttest:mws": "node generate_report.js",
+    "posttest:ifa": "node generate_report.js",
     "test:full": "npm test && npm run report",
     "report": "node generate_report.js"
   },

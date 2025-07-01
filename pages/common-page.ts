@@ -1,70 +1,149 @@
 import { Page, Locator } from 'playwright';
-import * as configData from '../config.json';
+import * as path from 'path';
 import { Config } from '../config.types';
-
-const config: Config = configData as Config;
+import { FileUtils, Logger } from '../utils/utils';
 
 export default class BasePage {
-
-    private readonly LINK_TEXT_SELECTOR_PLACEHOLDER = (linkText: string) => `//a[text()="${linkText}"]`;
-    private readonly TEXT_SELECTOR_PLACEHOLDER = (linkText: string) => `//*[contains(text(), '${linkText}')]`;
-    private maskSelectors: string[] = [];
-    
     protected readonly page: Page;
+    private readonly config: Config;
+    private maskSelectors: string[] = [];
 
-    constructor(page: Page) {
+    constructor(page: Page, config: Config) {
         this.page = page;
+        this.config = config;
     }
 
-    setMaskSelectors(selectors: string[]) {
-        this.maskSelectors = selectors;
+    // Selector utilities
+    private getLinkTextSelector(linkText: string): string {
+        return `//a[text()="${linkText}"]`;
     }
 
-    async openMainPage() {
-    await this.page.goto(config.baseUrl);
-    }
-    
-    async openMarketingWebsiteMainPage() {
-        await this.page.goto(config.baseUrlMWS);
+    private getTextSelector(text: string): string {
+        return `//*[contains(text(), '${text}')]`;
     }
 
-    async openAdviserWebsiteMainPage() {
-        await this.page.goto(config.baseUrlIFA);
+    // Navigation methods
+    async navigateToUrl(url: string): Promise<void> {
+        try {
+            Logger.info(`Navigating to: ${url}`);
+            await this.page.goto(url, {
+                waitUntil: 'networkidle',
+                timeout: this.config.cucumberDefaultTimeoutMs
+            });
+            await this.waitForPageLoad();
+        } catch (error) {
+            Logger.error(`Failed to navigate to ${url}`, error as Error);
+            throw error;
+        }
     }
 
-    async navigateToSubPageMWS(subPage: string): Promise<void> {
+    async navigateToMainPage(): Promise<void> {
+        await this.navigateToUrl(this.config.baseUrl);
+    }
+
+    async navigateToMarketingWebsite(): Promise<void> {
+        await this.navigateToUrl(this.config.baseUrlMWS);
+    }
+
+    async navigateToAdviserWebsite(): Promise<void> {
+        await this.navigateToUrl(this.config.baseUrlIFA);
+    }
+
+    async navigateToMWSSubPage(subPage: string): Promise<void> {
         const path = subPage.startsWith('/') ? subPage : `/${subPage}`;
-        await this.page.goto(`${config.baseUrlMWS}${path}`);
+        await this.page.goto(`${this.config.baseUrlMWS}${path}`);
     }
 
-    async navigateToSubPageIFA(subPage: string): Promise<void> {
-        const path = subPage.startsWith('/') ? subPage : `/${subPage}`;
-        await this.page.goto(`${config.baseUrlIFA}${path}`);
-    }    
-
-    async clickLinkByLinkText(linkText: string) {
-        await this.page.waitForSelector(this.LINK_TEXT_SELECTOR_PLACEHOLDER(linkText));
-        await this.page.click(this.LINK_TEXT_SELECTOR_PLACEHOLDER(linkText));
+    async navigateToIFASubPage(subPage: string): Promise<void> {
+        await this.page.goto(`${this.config.baseUrlIFA}${path}`);
     }
 
-    async takeScreenshot(scenarioName?: string, path?: string): Promise<Buffer> {
-        const maskLocators: Locator[] = this.maskSelectors.map(selector => 
-        this.page.locator(selector)
-        );
-        
-        return await this.page.screenshot({ 
-            path: `screenshots/${path}/${scenarioName}.png`, 
-            fullPage: true,
-            mask: maskLocators
-        });
+    // Page interaction methods
+    async clickLinkByText(linkText: string): Promise<void> {
+        try {
+            const selector = this.getLinkTextSelector(linkText);
+            await this.page.waitForSelector(selector, { timeout: this.config.cucumberDefaultTimeoutMs });
+            await this.page.click(selector);
+            await this.waitForPageLoad();
+        } catch (error) {
+            Logger.error(`Failed to click link with text: ${linkText}`, error as Error);
+            throw error;
+        }
     }
 
-    async getPageTitle(): Promise<String> {
+    async getElementByText(text: string): Promise<Locator> {
+        const selector = this.getTextSelector(text);
+        await this.page.waitForSelector(selector, { timeout: this.config.cucumberDefaultTimeoutMs });
+        return this.page.locator(selector);
+    }
+
+    async getPageTitle(): Promise<string> {
         return await this.page.title();
     }
 
-    async getLocatorByText(text: string): Promise<Locator> {
-        await this.page.waitForSelector(this.TEXT_SELECTOR_PLACEHOLDER(text));
-        return this.page.getByText(text);
+    async getCurrentUrl(): Promise<string> {
+        return this.page.url();
+    }
+
+    // Screenshot and visual testing methods
+    setMaskSelectors(selectors: string[]): void {
+        this.maskSelectors = selectors;
+        Logger.debug(`Set mask selectors: ${selectors.join(', ')}`);
+    }
+
+    async takeScreenshot(fileName?: string, customPath?: string): Promise<Buffer> {
+        try {
+            const maskLocators: Locator[] = this.maskSelectors.map(selector =>
+                this.page.locator(selector)
+            );
+
+            const screenshotOptions: any = {
+                fullPage: this.config.screenshot.fullPage,
+                mask: maskLocators
+            };
+
+            if (fileName && customPath) {
+                const fullPath = path.join(this.config.paths.screenshotsDir, customPath);
+                await FileUtils.ensureDirectoryExists(fullPath);
+                screenshotOptions.path = path.join(fullPath, `${fileName}.png`);
+            }
+
+            Logger.debug(`Taking screenshot with options: ${JSON.stringify(screenshotOptions)}`);
+            return await this.page.screenshot(screenshotOptions);
+        } catch (error) {
+            Logger.error('Failed to take screenshot', error as Error);
+            throw error;
+        }
+    }
+
+    // Utility methods
+    private async waitForPageLoad(): Promise<void> {
+        try {
+            await Promise.all([
+                this.page.waitForLoadState('networkidle'),
+                this.page.waitForLoadState('domcontentloaded')
+            ]);
+        } catch (error) {
+            Logger.warn('Page load wait timeout, continuing...');
+        }
+    }
+
+    async waitForElement(selector: string, timeout?: number): Promise<void> {
+        await this.page.waitForSelector(selector, {
+            timeout: timeout || this.config.cucumberDefaultTimeoutMs
+        });
+    }
+
+    async isElementVisible(selector: string): Promise<boolean> {
+        try {
+            return await this.page.isVisible(selector);
+        } catch {
+            return false;
+        }
+    }
+
+    async scrollToElement(selector: string): Promise<void> {
+        const element = this.page.locator(selector);
+        await element.scrollIntoViewIfNeeded();
     }
 }

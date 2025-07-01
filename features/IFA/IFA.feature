@@ -1,4 +1,4 @@
-@IFA
+@IFA @All
 Feature: IFA
 
   Scenario Outline: IFA screenshot "<URL>" UI comparison

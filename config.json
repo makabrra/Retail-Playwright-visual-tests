@@ -2,13 +2,28 @@
   "baseUrl": "https://www.nsandi.com/",
   "baseUrlMWS": "https://www.nsandi.com/",
   "baseUrlIFA": "https://www.nsandi-adviser.com/",
-
-  "png_comparision_threshold": 0.1,
-  "cucumber_default_timeout_ms": 10000,
-  "take_screenshots_on_failure": true,
+  "cucumberDefaultTimeoutMs": 10000,
 
   "browser": {
     "name": "chromium",
-    "headless": true
+    "headless": true,
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "slowMo": 0
+  },
+
+  "screenshot": {
+    "pngComparisonThreshold": 0.1,
+    "takeScreenshotsOnFailure": true,
+    "fullPage": true
+  },
+
+  "paths": {
+    "baselineDir": "test-artifacts/baseline",
+    "screenshotsDir": "test-artifacts/screenshots",
+    "reportsDir": "test-artifacts/reports",
+    "diffDir": "test-artifacts/diff"
   }
 }
