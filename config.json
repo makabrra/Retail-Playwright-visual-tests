@@ -1,5 +1,4 @@
 {
-  "baseUrl": "https://www.nsandi.com/",
   "baseUrlMWS": "https://www.nsandi.com/",
   "baseUrlIFA": "https://www.nsandi-adviser.com/",
   "cucumberDefaultTimeoutMs": 10000,

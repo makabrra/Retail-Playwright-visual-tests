@@ -37,10 +37,6 @@ export default class BasePage {
         }
     }
 
-    async navigateToMainPage(): Promise<void> {
-        await this.navigateToUrl(this.config.baseUrl);
-    }
-
     async navigateToMarketingWebsite(): Promise<void> {
         await this.navigateToUrl(this.config.baseUrlMWS);
     }

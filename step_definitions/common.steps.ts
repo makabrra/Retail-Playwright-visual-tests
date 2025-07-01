@@ -1,6 +1,5 @@
 import { Given, When, Before, After, setDefaultTimeout, Then, Status } from '@cucumber/cucumber';
 import { Browser, Page } from 'playwright';
-import { expect } from 'chai';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
