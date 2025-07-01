@@ -1,4 +1,4 @@
-@MWS
+@MWS @All
 Feature: MWS
 
   Scenario Outline: MWS screenshot "<URL>" UI comparison

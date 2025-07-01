@@ -6,7 +6,7 @@
   "scripts": {
     "test:mws": "npx cucumber-js -p test_runner --tags @MWS",
     "test:ifa": "npx cucumber-js -p test_runner --tags @IFA",
-    "test": "npx cucumber-js -p test_runner --tags @MWS and @IFA'",
+    "test": "npx cucumber-js -p test_runner --tags @All",
     "clean:reports": "rm -rf ./reports",
     "posttest": "node generate_report.js",
     "posttest:mws": "node generate_report.js",
