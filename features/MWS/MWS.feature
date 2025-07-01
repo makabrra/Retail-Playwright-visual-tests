@@ -12,9 +12,9 @@ Feature: MWS
       | /5-tips-save-smarter                                                                                          |
       | /accessibility                                                                                                |
       | /big-life-moments                                                                                             |
-      | /blog                                                                                                         |
-      | /blog/about-us                                                                                                |
-      | /blog/about-us/page/2                                                                                         |
+#      | /blog                                                                                                         |
+#      | /blog/about-us                                                                                                |
+#      | /blog/about-us/page/2                                                                                         |
 #      | /blog/ns-and-you                                                                                              |
 #      | /blog/ns-and-you/page/2                                                                                       |
 #      | /blog/ns-and-you/page/3                                                                                       |

@@ -2,7 +2,7 @@
   "baseUrl": "https://www.nsandi.com/",
   "baseUrlMWS": "https://www.nsandi.com/",
   "baseUrlIFA": "https://www.nsandi-adviser.com/",
-  "cucumberDefaultTimeoutMs": 30000,
+  "cucumberDefaultTimeoutMs": 10000,
 
   "browser": {
     "name": "chromium",
@@ -17,8 +17,7 @@
   "screenshot": {
     "pngComparisonThreshold": 0.1,
     "takeScreenshotsOnFailure": true,
-    "fullPage": true,
-    "quality": 100
+    "fullPage": true
   },
 
   "paths": {

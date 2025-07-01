@@ -41,51 +41,48 @@ export class ScreenshotComparator {
         currentBuffer: Buffer,
         testName: string
     ): Promise<ScreenshotComparisonResult> {
-        try {
-            const baselinePNG = PNG.sync.read(baselineBuffer);
-            const currentPNG = PNG.sync.read(currentBuffer);
+        const baselinePNG = PNG.sync.read(baselineBuffer);
+        const currentPNG = PNG.sync.read(currentBuffer);
 
-            if (baselinePNG.width !== currentPNG.width || baselinePNG.height !== currentPNG.height) {
-                throw new Error(
-                    `Screenshot dimensions don't match. Baseline: ${baselinePNG.width}x${baselinePNG.height}, ` +
-                    `Current: ${currentPNG.width}x${currentPNG.height}`
-                );
-            }
-
-            const { width, height } = baselinePNG;
-            const totalPixels = width * height;
-            const diff = new PNG({ width, height });
-
-            const diffPixels = pixelmatch(
-                baselinePNG.data,
-                currentPNG.data,
-                diff.data,
-                width,
-                height,
-                { threshold: this.threshold }
+        // Validate dimensions match
+        if (baselinePNG.width !== currentPNG.width || baselinePNG.height !== currentPNG.height) {
+            throw new Error(
+                `Screenshot dimensions mismatch: ${baselinePNG.width}x${baselinePNG.height} vs ${currentPNG.width}x${currentPNG.height}`
             );
-
-            const diffPercentage = (diffPixels / totalPixels) * 100;
-            const isMatch = diffPercentage < this.threshold * 100;
-
-            let diffImagePath: string | undefined;
-            if (!isMatch) {
-                await FileUtils.ensureDirectoryExists(this.diffDir);
-                diffImagePath = path.join(this.diffDir, `${FileUtils.sanitizeFileName(testName)}_diff.png`);
-                const diffBuffer = PNG.sync.write(diff);
-                await fs.writeFile(diffImagePath, diffBuffer);
-            }
-
-            return {
-                isMatch,
-                diffPixels,
-                totalPixels,
-                diffPercentage,
-                diffImagePath
-            };
-        } catch (error) {
-            throw new Error(`Screenshot comparison failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
+
+        const { width, height } = baselinePNG;
+        const totalPixels = width * height;
+        const diff = new PNG({ width, height });
+
+        // Compare images
+        const diffPixels = pixelmatch(
+            baselinePNG.data,
+            currentPNG.data,
+            diff.data,
+            width,
+            height,
+            { threshold: this.threshold }
+        );
+
+        const diffPercentage = (diffPixels / totalPixels) * 100;
+        const isMatch = diffPercentage <= (this.threshold * 100);
+
+        // Save diff image if there are differences
+        let diffImagePath: string | undefined;
+        if (diffPixels > 0) {
+            await FileUtils.ensureDirectoryExists(this.diffDir);
+            diffImagePath = path.join(this.diffDir, `${FileUtils.sanitizeFileName(testName)}_diff.png`);
+            await fs.writeFile(diffImagePath, PNG.sync.write(diff));
+        }
+
+        return {
+            isMatch,
+            diffPixels,
+            totalPixels,
+            diffPercentage: Number(diffPercentage.toFixed(2)),
+            diffImagePath
+        };
     }
 }
 

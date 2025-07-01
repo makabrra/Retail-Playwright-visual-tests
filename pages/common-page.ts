@@ -49,18 +49,13 @@ export default class BasePage {
         await this.navigateToUrl(this.config.baseUrlIFA);
     }
 
-    async navigateToSubPage(baseUrl: string, subPage: string): Promise<void> {
-        const path = subPage.startsWith('/') ? subPage : `/${subPage}`;
-        const fullUrl = `${baseUrl}${path}`;
-        await this.navigateToUrl(fullUrl);
-    }
-
     async navigateToMWSSubPage(subPage: string): Promise<void> {
-        await this.navigateToSubPage(this.config.baseUrlMWS, subPage);
+        const path = subPage.startsWith('/') ? subPage : `/${subPage}`;
+        await this.page.goto(`${this.config.baseUrlMWS}${path}`);
     }
 
     async navigateToIFASubPage(subPage: string): Promise<void> {
-        await this.navigateToSubPage(this.config.baseUrlIFA, subPage);
+        await this.page.goto(`${this.config.baseUrlIFA}${path}`);
     }
 
     // Page interaction methods
@@ -150,11 +145,5 @@ export default class BasePage {
     async scrollToElement(selector: string): Promise<void> {
         const element = this.page.locator(selector);
         await element.scrollIntoViewIfNeeded();
-    }
-
-    // Cleanup method
-    async cleanup(): Promise<void> {
-        // Any cleanup logic specific to the page
-        Logger.debug('BasePage cleanup completed');
     }
 }

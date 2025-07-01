@@ -12,7 +12,6 @@ export interface ScreenshotConfig {
   pngComparisonThreshold: number;
   takeScreenshotsOnFailure: boolean;
   fullPage: boolean;
-  quality?: number;
 }
 
 export interface PathConfig {

@@ -107,35 +107,35 @@ Then('the {string} page is displayed properly', async function (pageType: string
         // Ensure directories exist
         const baselineDir = path.join(config.paths.baselineDir, pageType);
         const screenshotsDir = path.join(config.paths.screenshotsDir, pageType);
-
         await FileUtils.ensureDirectoryExists(baselineDir);
-        await FileUtils.ensureDirectoryExists(screenshotsDir);
-
         const baselineScreenshotPath = path.join(baselineDir, `${sanitizedScenarioName}.png`);
 
-        // Take baseline screenshot
-
-        const baselineScreenshot = await basePage.takeScreenshot();
+        // Take current screenshot
+        await FileUtils.ensureDirectoryExists(screenshotsDir);
+        const currentScreenshot = await basePage.takeScreenshot();
 
         // Check if baseline exists
         const baselineExists = await FileUtils.fileExists(baselineScreenshotPath);
 
         if (!baselineExists) {
             Logger.info(`Creating baseline screenshot: ${baselineScreenshotPath}`);
-            await fs.writeFile(baselineScreenshotPath, baselineScreenshot);
+            await fs.writeFile(baselineScreenshotPath, currentScreenshot);
             Logger.info('Baseline screenshot created successfully');
             return;
         }
 
-        // Compare screenshots
-        Logger.info(`Comparing screenshots for scenario: ${sanitizedScenarioName}`);
-        const screenshotsPath = path.join(screenshotsDir, `${sanitizedScenarioName}.png`);
-        const currentScreenshot = await basePage.takeScreenshot();
-        await fs.writeFile(screenshotsPath, currentScreenshot);
+        // Save current screenshot for debugging
+        const currentScreenshotPath = path.join(screenshotsDir, `${sanitizedScenarioName}.png`);
+        await fs.writeFile(currentScreenshotPath, currentScreenshot);
 
+        // READ the saved baseline screenshot from file
+        const savedBaselineScreenshot = await fs.readFile(baselineScreenshotPath);
+
+        // Compare saved baseline with current screenshot
+        Logger.info(`Comparing screenshots for scenario: ${sanitizedScenarioName}`);
         const comparisonResult = await screenshotComparator.compareScreenshots(
-            baselineScreenshot,
-            currentScreenshot,
+            savedBaselineScreenshot,  // Read from saved baseline file
+            currentScreenshot,        // Current screenshot
             sanitizedScenarioName
         );
 
@@ -144,7 +144,9 @@ Then('the {string} page is displayed properly', async function (pageType: string
                 `Visual regression detected for scenario: ${sanitizedScenarioName}\n` +
                 `Difference: ${comparisonResult.diffPercentage.toFixed(2)}% ` +
                 `(${comparisonResult.diffPixels}/${comparisonResult.totalPixels} pixels)\n` +
-                `Diff image saved to: ${comparisonResult.diffImagePath}`;
+                `Baseline: ${baselineScreenshotPath}\n` +
+                `Current: ${currentScreenshotPath}\n` +
+                `Diff image: ${comparisonResult.diffImagePath}`;
 
             Logger.error(errorMessage);
 
@@ -196,10 +198,6 @@ Before(async function (scenario) {
             currentScenarioName: scenarioName,
             screenshotComparator
         };
-
-        // Navigate to main page
-        await testContext.basePage.navigateToMainPage();
-
     } catch (error) {
         Logger.error(`Failed to initialize test for scenario: ${scenarioName}`, error as Error);
         throw error;
@@ -234,9 +232,6 @@ After(async function (scenario) {
         } else {
             Logger.info(`Scenario passed: ${scenarioName}`);
         }
-
-        // Cleanup
-        await testContext.basePage.cleanup();
 
     } catch (error) {
         Logger.error(`Error during scenario cleanup: ${scenarioName}`, error as Error);
