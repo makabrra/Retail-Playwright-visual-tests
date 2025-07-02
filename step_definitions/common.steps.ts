@@ -20,15 +20,50 @@ class BrowserManager {
     private static pageInstance: Page | null = null;
 
     static async initializeBrowser(): Promise<{ browser: Browser; page: Page }> {
+        const browserName = process.env.BROWSER || config.browser.name;
         const { browser: browserConfig } = config;
-        const browserType = require('playwright')[browserConfig.name];
 
-        Logger.info(`Launching ${browserConfig.name} browser`);
+        Logger.info(`Launching ${browserName} browser`);
 
-        const browser = await browserType.launch({
-            headless: browserConfig.headless,
-            slowMo: browserConfig.slowMo || 0
-        });
+        let browser: Browser;
+
+        try {
+            switch (browserName) {
+                case 'chrome':
+                    const chrome = require('playwright');
+                    browser = await chrome.chromium.launch({
+                        headless: browserConfig.headless,
+                        slowMo: browserConfig.slowMo || 0,
+                        channel: 'chrome'
+                    });
+                    break;
+
+                case 'edge':
+                    const edge = require('playwright');
+                    browser = await edge.chromium.launch({
+                        headless: browserConfig.headless,
+                        slowMo: browserConfig.slowMo || 0,
+                        channel: 'msedge'
+                    });
+                    break;
+
+                case 'chromium':
+                case 'firefox':
+                case 'webkit':
+                    const browserType = require('playwright')[browserName];
+                    browser = await browserType.launch({
+                        headless: browserConfig.headless,
+                        slowMo: browserConfig.slowMo || 0
+                    });
+                    break;
+
+                default:
+                    throw new Error(`Unsupported browser: ${browserName}. Supported browsers: chromium, firefox, webkit, chrome, edge`);
+            }
+        } catch (error) {
+            Logger.error(`Failed to launch browser: ${browserName}`, error as Error);
+            throw error;
+        }
 
         const page = await browser.newPage();
 
@@ -89,7 +124,6 @@ When('the User navigated to the {string} MWS page', async (subPage: string) => {
 
 When('the User navigated to the {string} IFA page', async (subPage: string) => {
     Logger.info(`Navigating to IFA page: ${subPage}`);
-    // await testContext.basePage.waitFor(2000);
     await testContext.basePage.navigateToIFASubPage(subPage);
 });
 
@@ -179,10 +213,6 @@ Then('the {string} page is displayed properly', async function (pageType: string
         }
 
         Logger.info(`Screenshot comparison passed for scenario: ${sanitizedScenarioName}`);
-
-        // Even on success, you might want to attach the current screenshot for documentation
-        // Uncomment the following lines if you want to attach screenshots on success too:
-        // await this.attach(currentScreenshot, 'image/png');
 
     } catch (error) {
         Logger.error(`Visual comparison failed for scenario: ${sanitizedScenarioName}`, error as Error);

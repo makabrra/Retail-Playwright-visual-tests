@@ -78,7 +78,7 @@ export default class BasePage {
         const popupButton = this.page.locator('a.btn.modal-close', {
             hasText: 'Adviser Centre'
         })
-        await popupButton.waitFor({ state: 'visible', timeout: 2000 });
+        await popupButton.waitFor({ state: 'visible', timeout: 1000 });
         await popupButton.click();
     }
 
