@@ -4,13 +4,13 @@
   "cucumberDefaultTimeoutMs": 10000,
 
   "browser": {
-    "name": "chromium",
+    "name": "firefox",
     "headless": false,
     "viewport": {
       "width": 1920,
       "height": 1080
     },
-    "slowMo": 1000
+    "slowMo": 500
   },
 
   "screenshot": {

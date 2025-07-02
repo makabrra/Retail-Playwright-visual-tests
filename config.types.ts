@@ -1,5 +1,5 @@
 export interface BrowserConfig {
-  name: 'chromium' | 'firefox' | 'webkit';
+  name: 'chromium' | 'firefox' | 'webkit' | 'chrome' | 'edge';
   headless: boolean;
   viewport?: {
     width: number;
