@@ -2,16 +2,16 @@
 Feature: MWS
 
   Scenario Outline: MWS screenshot "<URL>" UI comparison
-    Given a customer is browsing NS&I marketing website
+    Given a User is browsing NS&I marketing website
     When the User navigated to the "<URL>" MWS page
     Then the "MWS" page is displayed properly
 
     Examples:
-      | URL                                                                                                           |
-      |                                                                                                               |
-      | /5-tips-save-smarter                                                                                          |
-      | /accessibility                                                                                                |
-      | /big-life-moments                                                                                             |
+      | URL                  |
+      |                      |
+      | /5-tips-save-smarter |
+      | /accessibility       |
+      | /big-life-moments    |
 #      | /blog                                                                                                         |
 #      | /blog/about-us                                                                                                |
 #      | /blog/about-us/page/2                                                                                         |

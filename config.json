@@ -1,21 +1,20 @@
 {
-  "baseUrl": "https://www.nsandi.com/",
-  "baseUrlMWS": "https://www.nsandi.com/",
-  "baseUrlIFA": "https://www.nsandi-adviser.com/",
+  "baseUrlMWS": "https://www.nsandi.com",
+  "baseUrlIFA": "https://www.nsandi-adviser.com",
   "cucumberDefaultTimeoutMs": 10000,
 
   "browser": {
     "name": "chromium",
-    "headless": true,
+    "headless": false,
     "viewport": {
       "width": 1920,
       "height": 1080
     },
-    "slowMo": 0
+    "slowMo": 1000
   },
 
   "screenshot": {
-    "pngComparisonThreshold": 0.1,
+    "pngComparisonThreshold": 0.001,
     "takeScreenshotsOnFailure": true,
     "fullPage": true
   },

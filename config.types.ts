@@ -22,7 +22,6 @@ export interface PathConfig {
 }
 
 export interface Config {
-  baseUrl: string;
   baseUrlIFA: string;
   baseUrlMWS: string;
   cucumberDefaultTimeoutMs: number;

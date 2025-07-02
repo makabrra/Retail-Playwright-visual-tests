@@ -37,10 +37,6 @@ export default class BasePage {
         }
     }
 
-    async navigateToMainPage(): Promise<void> {
-        await this.navigateToUrl(this.config.baseUrl);
-    }
-
     async navigateToMarketingWebsite(): Promise<void> {
         await this.navigateToUrl(this.config.baseUrlMWS);
     }
@@ -55,6 +51,7 @@ export default class BasePage {
     }
 
     async navigateToIFASubPage(subPage: string): Promise<void> {
+        const path = subPage.startsWith('/') ? subPage : `/${subPage}`;
         await this.page.goto(`${this.config.baseUrlIFA}${path}`);
     }
 
@@ -75,6 +72,14 @@ export default class BasePage {
         const selector = this.getTextSelector(text);
         await this.page.waitForSelector(selector, { timeout: this.config.cucumberDefaultTimeoutMs });
         return this.page.locator(selector);
+    }
+
+    async clickPopupButton() {
+        const popupButton = this.page.locator('a.btn.modal-close', {
+            hasText: 'Adviser Centre'
+        })
+        await popupButton.waitFor({ state: 'visible', timeout: 2000 });
+        await popupButton.click();
     }
 
     async getPageTitle(): Promise<string> {
@@ -117,7 +122,7 @@ export default class BasePage {
     }
 
     // Utility methods
-    private async waitForPageLoad(): Promise<void> {
+    async waitForPageLoad(): Promise<void> {
         try {
             await Promise.all([
                 this.page.waitForLoadState('networkidle'),
@@ -132,6 +137,18 @@ export default class BasePage {
         await this.page.waitForSelector(selector, {
             timeout: timeout || this.config.cucumberDefaultTimeoutMs
         });
+    }
+
+    async waitFor(timeout: number): Promise<void> {
+        await this.page.waitForTimeout(timeout);
+    }
+
+    async isElementHidden(selector: string): Promise<boolean> {
+        try {
+            return await this.page.isHidden(selector)
+        } catch {
+            return false;
+        }
     }
 
     async isElementVisible(selector: string): Promise<boolean> {

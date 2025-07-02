@@ -1,29 +1,15 @@
 const report = require('multiple-cucumber-html-reporter');
 const fs = require('fs');
-const browserInfo = getBrowserInfo();
-const systemInfo = getSystemInfo();
+const path = require('path');
+const os = require('os');
 
-// Function to get browser info from your config
-function getBrowserInfo() {
-    const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
-    return {
-        name: config.browser.name,
-        version: 'Latest'
-    };
-}
+// Load configuration
+const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
-// Function to get system info
-function getSystemInfo() {
-    const os = require('os');
-    return {
-        name: os.platform(),
-        version: os.release()
-    };
-}
-
+// Generate HTML report
 report.generate({
-    jsonDir: './reports/',
-    reportPath: './reports/html/',
+    jsonDir: config.paths.reportsDir,
+    reportPath: path.join(config.paths.reportsDir, 'html'),
     openReportInBrowser: true,
     saveCollectedJSON: true,
     reportName: 'NS&I Visual Testing Report',
@@ -31,9 +17,15 @@ report.generate({
     displayDuration: true,
     displayReportTime: true,
     metadata: {
-        browser: browserInfo,
+        browser: {
+            name: config.browser.name,
+            version: 'Latest'
+        },
         device: 'Test Environment',
-        platform: systemInfo
+        platform: {
+            name: os.platform(),
+            version: os.release()
+        }
     },
     customData: {
         title: 'Test Information',
@@ -43,7 +35,7 @@ report.generate({
             { label: 'Sites Under Test', value: 'Marketing Website (MWS) & IFA Website' },
             { label: 'Execution Date', value: new Date().toLocaleDateString() },
             { label: 'Execution Time', value: new Date().toLocaleTimeString() },
-            { label: 'Browser Mode', value: browserInfo.name === 'chromium' ? 'Headless Chromium' : browserInfo.name },
+            { label: 'Browser Mode', value: config.browser.headless ? `Headless ${config.browser.name}` : config.browser.name },
             { label: 'Test Framework', value: 'Playwright + Cucumber' }
         ]
     }

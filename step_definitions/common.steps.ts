@@ -72,12 +72,12 @@ let testContext: TestContext;
 setDefaultTimeout(config.cucumberDefaultTimeoutMs);
 
 // Step definitions
-Given('a customer is browsing NS&I marketing website', async () => {
+Given('a User is browsing NS&I marketing website', async () => {
     Logger.info('Navigating to NS&I marketing website');
     await testContext.basePage.navigateToMarketingWebsite();
 });
 
-Given('a customer is browsing NS&I adviser website', async () => {
+Given('a User is browsing NS&I adviser website', async () => {
     Logger.info('Navigating to NS&I adviser website');
     await testContext.basePage.navigateToAdviserWebsite();
 });
@@ -89,7 +89,13 @@ When('the User navigated to the {string} MWS page', async (subPage: string) => {
 
 When('the User navigated to the {string} IFA page', async (subPage: string) => {
     Logger.info(`Navigating to IFA page: ${subPage}`);
+    // await testContext.basePage.waitFor(2000);
     await testContext.basePage.navigateToIFASubPage(subPage);
+});
+
+When('the User close popup and continue to Adviser Centre', async () => {
+    Logger.info(`Closing popup`);
+    await testContext.basePage.clickPopupButton();
 });
 
 Then('the {string} page is displayed properly', async function (pageType: string) {
@@ -150,15 +156,33 @@ Then('the {string} page is displayed properly', async function (pageType: string
 
             Logger.error(errorMessage);
 
-            // Attach current screenshot to test report
-            if (config.screenshot.takeScreenshotsOnFailure) {
+            // Attach all relevant screenshots to the test report
+            try {
+                // 1. Attach current screenshot
                 await this.attach(currentScreenshot, 'image/png');
+
+                // 2. Attach baseline screenshot for comparison
+                const baselineBuffer = await fs.readFile(baselineScreenshotPath);
+                await this.attach(baselineBuffer, 'image/png');
+
+                // 3. Attach diff screenshot if it exists
+                if (comparisonResult.diffImagePath) {
+                    const diffBuffer = await fs.readFile(comparisonResult.diffImagePath);
+                    await this.attach(diffBuffer, 'image/png');
+                    Logger.info(`Diff screenshot attached: ${comparisonResult.diffImagePath}`);
+                }
+            } catch (attachError) {
+                Logger.error('Failed to attach screenshots to report', attachError as Error);
             }
 
             throw new Error(errorMessage);
         }
 
         Logger.info(`Screenshot comparison passed for scenario: ${sanitizedScenarioName}`);
+
+        // Even on success, you might want to attach the current screenshot for documentation
+        // Uncomment the following lines if you want to attach screenshots on success too:
+        // await this.attach(currentScreenshot, 'image/png');
 
     } catch (error) {
         Logger.error(`Visual comparison failed for scenario: ${sanitizedScenarioName}`, error as Error);
