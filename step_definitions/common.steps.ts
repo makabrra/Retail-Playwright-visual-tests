@@ -1,6 +1,5 @@
 import { Given, When, Before, After, setDefaultTimeout, Then, Status } from '@cucumber/cucumber';
 import { Browser, Page } from 'playwright';
-import { expect } from 'chai';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -193,7 +192,7 @@ Then('the {string} page is displayed properly', async function (pageType: string
             // Attach all relevant screenshots to the test report
             try {
                 // 1. Attach current screenshot
-                await this.attach(currentScreenshot, 'image/png');
+                // await this.attach(currentScreenshot, 'image/png');
 
                 // 2. Attach baseline screenshot for comparison
                 const baselineBuffer = await fs.readFile(baselineScreenshotPath);
@@ -216,17 +215,6 @@ Then('the {string} page is displayed properly', async function (pageType: string
 
     } catch (error) {
         Logger.error(`Visual comparison failed for scenario: ${sanitizedScenarioName}`, error as Error);
-
-        // Attach debug screenshot on failure
-        if (config.screenshot.takeScreenshotsOnFailure) {
-            try {
-                const debugScreenshot = await basePage.takeScreenshot();
-                await this.attach(debugScreenshot, 'image/png');
-            } catch (screenshotError) {
-                Logger.error('Failed to attach debug screenshot', screenshotError as Error);
-            }
-        }
-
         throw error;
     }
 });
