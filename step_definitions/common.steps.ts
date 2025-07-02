@@ -72,12 +72,12 @@ let testContext: TestContext;
 setDefaultTimeout(config.cucumberDefaultTimeoutMs);
 
 // Step definitions
-Given('a customer is browsing NS&I marketing website', async () => {
+Given('a User is browsing NS&I marketing website', async () => {
     Logger.info('Navigating to NS&I marketing website');
     await testContext.basePage.navigateToMarketingWebsite();
 });
 
-Given('a customer is browsing NS&I adviser website', async () => {
+Given('a User is browsing NS&I adviser website', async () => {
     Logger.info('Navigating to NS&I adviser website');
     await testContext.basePage.navigateToAdviserWebsite();
 });
@@ -89,7 +89,13 @@ When('the User navigated to the {string} MWS page', async (subPage: string) => {
 
 When('the User navigated to the {string} IFA page', async (subPage: string) => {
     Logger.info(`Navigating to IFA page: ${subPage}`);
+    // await testContext.basePage.waitFor(2000);
     await testContext.basePage.navigateToIFASubPage(subPage);
+});
+
+When('the User close popup and continue to Adviser Centre', async () => {
+    Logger.info(`Closing popup`);
+    await testContext.basePage.clickPopupButton();
 });
 
 Then('the {string} page is displayed properly', async function (pageType: string) {
