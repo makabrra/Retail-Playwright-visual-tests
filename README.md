@@ -1,55 +1,221 @@
-# Cucumber Playwright Test TypeScript
+# NS&I Visual Testing Suite
 
-This is an example project that uses Cucumber, Playwright, and TypeScript for end-to-end testing.
+A comprehensive visual regression testing framework using Cucumber, Playwright, and TypeScript for NS&I's Marketing Website (MWS) and Independent Financial Adviser (IFA) platforms.
 
-## Installation
-Clone the repository
+## Features
 
-Install the dependencies:
+- **Visual Regression Testing** - Pixel-perfect screenshot comparison with configurable thresholds
+- **Multi-Browser Support** - Chrome, Firefox, Edge, WebKit, and Chromium
+- **Dual Site Testing** - Automated testing for both MWS and IFA websites
+- **Element Masking** - Hide dynamic content for consistent comparisons
+- **Detailed Reporting** - HTML reports with screenshot attachments and diff visualizations
+- **Baseline Management** - Automatic baseline creation and comparison
+- **Flexible Configuration** - JSON-based configuration for all test parameters
 
-```sh
+## Quick Start
+
+### Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
 cd Retail-Playwright-visual-tests
-``` 
-```sh
+
+# Install dependencies (recommended)
 npm ci
-```
-this will install all the dependencies from the `packege-lock.json` file or:
-```sh
+
+# Or install latest versions
 npm install
 ```
-to install the latest dependencies.
 
-## Running the tests
-To run the tests, use the npm test command:
+### Basic Usage
 
-```sh
+```bash
+# Run all tests
 npm test
+
+# Run MWS tests only
+npm run test:mws
+
+# Run IFA tests only
+npm run test:ifa
+
+# Test with specific browser
+npm run test:chrome
+npm run test:firefox
+npm run test:webkit
+npm run test:edge
 ```
-This will run all the tests that are tagged with `@MWS`. (See `scripts` section in the `package.json` to see/update `test` phase script if needed.)
 
-## Adding new features
-To add a new feature, create a new `.feature` file in the `features` directory, and implement the corresponding step definitions in the `step_definitions` directory.
+## Project Structure
 
-## Adding new step definitions
-To add a new step definition, create a new `.ts` file in the `step_definitions` directory, and implement the step definition function using the `Given`, `When`, or `Then` functions from Cucumber.
+```
+├── features/           # Cucumber feature files
+│   ├── MWS/           # Marketing Website scenarios
+│   └── IFA/           # IFA Website scenarios
+├── step_definitions/   # Test step implementations
+├── pages/             # Page Object Model classes
+├── utils/             # Utility classes (screenshot comparison, file handling)
+├── test-artifacts/    # Generated test outputs
+│   ├── baseline/      # Baseline screenshots
+│   ├── screenshots/   # Current test screenshots
+│   ├── diff/          # Difference visualizations
+│   └── reports/       # HTML test reports
+├── config.json        # Main configuration file
+└── mask-config.json   # Element masking configuration
+```
 
-## Page object hierarchy and adding new pages
-This project uses a simple page object hierarchy for organizing the page objects. Each page object is defined in its own TypeScript class and placed in the `pages` folder. All pages inherit from a base page object class. The base class contains common methods for interacting with web pages, such as navigating to a URL, waiting for an element to appear, and taking screenshots.
+## Configuration
 
-To add a new page object, create a new TypeScript class that inherits from the base page object class, and implement the methods that are specific to that page.
+### Main Configuration (`config.json`)
 
-## Screenshot Comparison
-This project uses screenshot comparison to ensure that the UI of the tested pages has not changed unexpectedly. Baseline screenshots are taken from the `baseline_png` folder and are used to compare against the screenshots that are generated during the test execution. This generated screenshots are saved into the `screenshots` folder as a `*_screenshot_*.png` for debug convenience. A diff screenshot that highlights the differences between the two screenshots is generated and saved in the `screenshots` folder as well as a `*_diff.png`.
+```json
+{
+  "baseUrlMWS": "https://www.nsandi.com",
+  "baseUrlIFA": "https://www.nsandi-adviser.com",
+  "browser": {
+    "name": "firefox",
+    "headless": false,
+    "viewport": { "width": 1920, "height": 1080 },
+    "slowMo": 500
+  },
+  "screenshot": {
+    "pngComparisonThreshold": 0.001,
+    "takeScreenshotsOnFailure": true,
+    "fullPage": true
+  }
+}
+```
 
-To perform the comparison, this project uses `pngjs` and `pixelmatch` packages. These packages analyze the difference between two screenshots pixel by pixel and calculate a percentage difference. If the difference is above the threshold - the test fails. The threshold is defined in `config.json` and is set to `0.1` by default.
+### Element Masking (`mask-config.json`)
 
-## Config file
-This project uses a `config.json` file for storing configuration options, such as the base URL of the web application, browser headless mode, timeouts, etc. You can modify the `config.json` file to suit your needs.
+```json
+{
+  "MWS": ["#header", ".dynamic-content"],
+  "IFA": ["#navigation", ".timestamp"]
+}
+```
+
+## Browser Testing
+
+The framework supports multiple browsers with environment variable override:
+
+```bash
+# Using environment variables
+BROWSER=chrome npm test
+BROWSER=firefox npm run test:mws
+BROWSER=webkit npm run test:ifa
+
+# Using dedicated scripts
+npm run test:all-browsers  # Runs tests across all browsers
+```
+
+## Visual Comparison Process
+
+1. **First Run**: Creates baseline screenshots automatically
+2. **Subsequent Runs**: Compares current screenshots against baselines
+3. **Threshold Check**: Fails if differences exceed configured threshold (0.1% default)
+4. **Diff Generation**: Creates highlighted difference images for failed comparisons
+
+## Adding New Tests
+
+### Create a Feature File
+
+```gherkin
+@MWS @All
+Feature: New Page Testing
+
+  Scenario Outline: Test "<URL>" page
+    Given a User is browsing NS&I marketing website
+    When the User navigated to the "<URL>" MWS page
+    Then the "MWS" page is displayed properly
+
+    Examples:
+      | URL           |
+      | /new-page     |
+      | /another-page |
+```
+
+### Add Element Masking (Optional)
+
+```json
+{
+  "MWS": ["#header", ".new-dynamic-element"]
+}
+```
+
+## Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm test` | Run all tests with default browser |
+| `npm run test:mws` | Run Marketing Website tests only |
+| `npm run test:ifa` | Run IFA tests only |
+| `npm run test:[browser]` | Run tests with specific browser |
+| `npm run test:all-browsers` | Run tests across all supported browsers |
+| `npm run clean:reports` | Remove all generated reports |
+| `npm run report` | Generate HTML report manually |
 
 ## Reporting
-This project uses the `multiple-cucumber-html-reporter` package for generating HTML reports of the test results. The reports are saved in the `reports` directory after each test run. You can view the reports by opening the `index.html` file in a web browser after tests execution.
 
+After each test run, an HTML report is automatically generated in `test-artifacts/reports/html/`. The report includes:
 
+- Test execution summary with pass/fail status
+- Screenshot comparisons for visual tests
+- Difference highlights for failed comparisons
+- Browser and environment metadata
+- Execution timestamps and duration
 
+## Troubleshooting
 
+### Common Issues
 
+**Tests failing with dimension mismatch:**
+- Ensure consistent viewport settings across test runs
+- Check for responsive design changes affecting layout
+
+**High false positive rate:**
+- Adjust `pngComparisonThreshold` in config.json
+- Add dynamic elements to mask-config.json
+
+**Browser launch failures:**
+- Install browsers: `npx playwright install`
+- Check browser-specific requirements in documentation
+
+### Debug Mode
+
+Enable detailed logging:
+```bash
+DEBUG=true npm test
+```
+
+### Reset Baselines
+
+To update baselines after intentional UI changes:
+```bash
+# Remove existing baselines
+rm -rf test-artifacts/baseline/
+
+# Run tests to generate new baselines
+npm test
+```
+
+## Architecture
+
+- **Base Page Class**: Common page interactions and screenshot functionality
+- **Screenshot Comparator**: Pixel-level comparison using pixelmatch
+- **Browser Manager**: Handles browser lifecycle and configuration
+- **File Utils**: Directory management and file operations
+- **Test Context**: Scenario-specific state management
+
+## Dependencies
+
+- **@playwright/test**: Browser automation
+- **@cucumber/cucumber**: BDD test framework
+- **pixelmatch**: Image comparison
+- **pngjs**: PNG image processing
+- **multiple-cucumber-html-reporter**: HTML report generation
+
+---
+
+For detailed configuration options and advanced usage, refer to the inline documentation in the configuration files.
